@@ -13,10 +13,13 @@
   display: none !important;
 }
 
+html,
 body {
   margin: 0;
+  height: 100vh;
   min-height: 100vh;
   overflow: hidden;
+  width: 100vw;
 }
 
 button {
@@ -214,9 +217,25 @@ h1 {
   width: 34px;
 }
 
-a-scene {
-  height: 100vh;
-  width: 100vw;
+a-scene,
+#scene {
+  height: 100vh !important;
+  inset: 0;
+  overflow: hidden;
+  position: fixed !important;
+  width: 100vw !important;
+  z-index: 0;
+}
+
+.a-canvas,
+canvas.a-canvas,
+#arjs-video {
+  height: 100vh !important;
+  left: 0 !important;
+  object-fit: cover !important;
+  position: fixed !important;
+  top: 0 !important;
+  width: 100vw !important;
 }
 
 @media (max-width: 520px) {
