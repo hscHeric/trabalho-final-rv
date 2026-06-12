@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <title>AR Quixada - Poesia em Realidade Aumentada</title>
+    <link rel="stylesheet" href="./styles.css" />
+
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.7/three.js/build/ar-threex-location-only.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.7/aframe/build/aframe-ar.js"></script>
+  </head>
+  <body>
+    <main id="intro" class="intro">
+      <section class="intro__panel">
+        <p class="kicker">AR.js + GPS</p>
+        <h1>Poesia quixadaense em realidade aumentada</h1>
+        <p>
+          Aponte a camera para a coordenada da estatua. Um cubo vermelho aparece
+          preso ao lugar no espaco.
+        </p>
+        <button id="start-button" type="button">Iniciar experiencia</button>
+        <p class="hint">
+          Use no celular, em HTTPS ou localhost, com permissao de camera,
+          localizacao e sensores.
+        </p>
+      </section>
+    </main>
+
+    <div id="hud" class="hud" hidden>
+      <div>
+        <strong id="place-title">Carregando ponto AR</strong>
+        <span id="distance">Aguardando GPS...</span>
+      </div>
+      <span id="status" class="status">Camera ativa</span>
+    </div>
+
+    <div id="message" class="message" hidden></div>
+
+    <dialog id="poem-modal" class="poem-modal">
+      <article class="parchment">
+        <button id="close-modal" class="modal-close" type="button" aria-label="Fechar">
+          x
+        </button>
+        <p class="kicker">Poesia</p>
+        <h2>Personagem de Quixada</h2>
+        <p>
+          No caminho de pedra e sol, uma voz antiga atravessa a rua. Entre o
+          vento dos monolitos e o passo ligeiro do povo, a cidade guarda sua
+          memoria em silencio, esperando que alguem aponte a camera e escute.
+        </p>
+      </article>
+    </dialog>
+
+    <a-scene
+      id="scene"
+      vr-mode-ui="enabled: false"
+      embedded
+      renderer="antialias: true; alpha: true"
+      arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false"
+      cursor="rayOrigin: mouse"
+      raycaster="objects: .clickable"
+    >
+      <a-camera
+        id="camera"
+        look-controls-enabled="false"
+        arjs-device-orientation-controls="smoothingFactor: 0.1"
+        gps-new-camera="gpsMinDistance: 5; positionMinAccuracy: 100"
+      >
+        <a-cursor
+          fuse="false"
+          raycaster="objects: .clickable"
+          material="color: #f3b544; shader: flat"
+        ></a-cursor>
+      </a-camera>
+    </a-scene>
+
+    <script src="./config.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
