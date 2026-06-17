@@ -3,7 +3,7 @@
 
   const intro = document.getElementById("intro");
   const startButton = document.getElementById("start-button");
-  const debugButton = document.getElementById("debug-button");
+  const demoButton = document.getElementById("demo-button");
   const hud = document.getElementById("hud");
   const message = document.getElementById("message");
   const distanceLabel = document.getElementById("distance");
@@ -15,7 +15,7 @@
   let pointConfigs = config.points.map((point) => ({ ...point }));
   let activePointId = null;
   let watchId = null;
-  let isDebugMode = false;
+  let isDemoMode = false;
   const audioByPointId = new Map();
 
   AFRAME.registerComponent("face-camera", {
@@ -150,11 +150,11 @@
   }
 
   function getImageWidth() {
-    return isDebugMode ? config.debugImageWidth : config.imageWidth;
+    return isDemoMode ? config.demoImageWidth : config.imageWidth;
   }
 
   function getImageHeight() {
-    return isDebugMode ? config.debugImageHeight : config.imageHeight;
+    return isDemoMode ? config.demoImageHeight : config.imageHeight;
   }
 
   function getFrameWidth() {
@@ -166,20 +166,20 @@
   }
 
   function getFramePadding() {
-    return isDebugMode ? 0.28 : 0.55;
+    return isDemoMode ? 0.28 : 0.55;
   }
 
   function getLabelY() {
-    const gap = isDebugMode ? 0.7 : 1.1;
+    const gap = isDemoMode ? 0.7 : 1.1;
     return config.imageAltitude - getImageHeight() / 2 - gap;
   }
 
   function getLabelWidth() {
-    return Math.max(getImageWidth() * 0.92, isDebugMode ? 4.8 : 8.5);
+    return Math.max(getImageWidth() * 0.92, isDemoMode ? 4.8 : 8.5);
   }
 
   function getLabelHeight() {
-    return isDebugMode ? 0.85 : 1.2;
+    return isDemoMode ? 0.85 : 1.2;
   }
 
   function getAudioIconX() {
@@ -191,7 +191,7 @@
   }
 
   function getAudioIconSize() {
-    return isDebugMode ? 1.8 : 3.2;
+    return isDemoMode ? 1.8 : 3.2;
   }
 
   function getPointAudio(pointId, source) {
@@ -272,15 +272,15 @@
     });
   }
 
-  function applyDebugCoordinates(position) {
-    const debugOffsets = [
+  function applyDemoCoordinates(position) {
+    const demoOffsets = [
       { distance: 8, bearing: 0 },
       { distance: 12, bearing: 120 },
       { distance: 16, bearing: 240 },
     ];
 
     pointConfigs = config.points.map((point, index) => {
-      const offset = debugOffsets[index] || debugOffsets[0];
+      const offset = demoOffsets[index] || demoOffsets[0];
       const coordinates = destinationPoint(
         position.coords.latitude,
         position.coords.longitude,
@@ -448,24 +448,24 @@
 
   async function startExperience(options = {}) {
     try {
-      isDebugMode = Boolean(options.debug);
+      isDemoMode = Boolean(options.demo);
       primeConfiguredAudio();
       await requestMotionPermission();
-      if (options.debug) {
-        statusLabel.textContent = "Obtendo GPS para debug";
+      if (options.demo) {
+        statusLabel.textContent = "Obtendo GPS para demonstração";
         const position = await getCurrentPosition();
-        applyDebugCoordinates(position);
+        applyDemoCoordinates(position);
       }
 
       intro.hidden = true;
       hud.hidden = false;
       placeTitle.textContent = config.title;
-      statusLabel.textContent = options.debug ? "Debug ativo" : "Aguardando GPS";
+      statusLabel.textContent = options.demo ? "Modo demonstração ativo" : "Aguardando GPS";
       if (!points.length) buildPointEntities();
       primeAudio();
       startGpsWatch();
-      if (options.debug) {
-        showMessage("Debug ativo: pontos criados a poucos metros de você.");
+      if (options.demo) {
+        showMessage("Modo demonstração ativo: pontos criados a poucos metros de você.");
       }
     } catch (error) {
       showMessage(
@@ -475,7 +475,7 @@
   }
 
   startButton.addEventListener("click", () => startExperience());
-  debugButton.addEventListener("click", () => startExperience({ debug: true }));
+  demoButton.addEventListener("click", () => startExperience({ demo: true }));
 
   window.addEventListener("arjs-nft-loaded", () => {
     showMessage("AR.js carregado.");
