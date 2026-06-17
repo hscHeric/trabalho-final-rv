@@ -50,6 +50,42 @@
     }, 5000);
   }
 
+  function syncViewportSize() {
+    const viewport = window.visualViewport;
+    const width = Math.round(viewport?.width || window.innerWidth);
+    const height = Math.round(viewport?.height || window.innerHeight);
+
+    document.documentElement.style.setProperty("--app-height", `${height}px`);
+    fitToViewport(scene, width, height);
+
+    const canvas = scene.canvas || document.querySelector("canvas.a-canvas");
+    fitToViewport(canvas, width, height);
+
+    document.querySelectorAll("#arjs-video, .arjs-video, body > video").forEach((video) => {
+      fitToViewport(video, width, height);
+    });
+
+    if (scene.renderer) {
+      scene.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+      scene.renderer.setSize(width, height, false);
+    }
+
+    const camera = document.getElementById("camera")?.components?.camera?.camera;
+    if (camera) {
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+    }
+  }
+
+  function fitToViewport(element, width, height) {
+    if (!element) return;
+
+    element.style.width = `${width}px`;
+    element.style.height = `${height}px`;
+    element.style.minWidth = `${width}px`;
+    element.style.minHeight = `${height}px`;
+  }
+
   function buildPointEntities() {
     points = pointConfigs.map((point, index) => {
       const entity = document.createElement("a-entity");
@@ -58,6 +94,7 @@
       entity.setAttribute("face-camera", "");
 
       const card = document.createElement("a-entity");
+      card.setAttribute("scale", "1 1 1");
       card.setAttribute(
         "animation__float",
         [
@@ -118,6 +155,9 @@
       audioIcon.setAttribute("position", `${getAudioIconX()} ${getAudioIconY()} 0.28`);
       audioIcon.setAttribute("material", "shader: flat; transparent: true; depthTest: false");
 
+      const zoomOutButton = createZoomButton("-", getZoomOutX(), getZoomButtonY());
+      const zoomInButton = createZoomButton("+", getZoomInX(), getZoomButtonY());
+
       const audio = getPointAudio(index, point.audio);
       audio.addEventListener("ended", () => {
         if (activePointId !== index) return;
@@ -127,12 +167,16 @@
       });
 
       audioIcon.addEventListener("click", () => togglePointAudio(index));
+      zoomOutButton.addEventListener("click", () => changePointZoom(index, -1));
+      zoomInButton.addEventListener("click", () => changePointZoom(index, 1));
 
       card.appendChild(shadow);
       card.appendChild(frame);
       card.appendChild(image);
       card.appendChild(labelBackground);
       card.appendChild(label);
+      card.appendChild(zoomOutButton);
+      card.appendChild(zoomInButton);
       card.appendChild(audioIcon);
       entity.appendChild(card);
       scene.appendChild(entity);
@@ -141,7 +185,9 @@
         ...point,
         id: index,
         audio,
+        card,
         distance: Number.POSITIVE_INFINITY,
+        zoom: 1,
         entity,
         audioIcon,
       };
@@ -195,6 +241,45 @@
 
   function getAudioIconSize() {
     return isDemoMode ? 1.35 : 2.45;
+  }
+
+  function getZoomButtonSize() {
+    return isDemoMode ? 1.15 : 1.85;
+  }
+
+  function getZoomButtonY() {
+    return config.imageAltitude + getImageHeight() / 2 - getZoomButtonSize() * 0.65;
+  }
+
+  function getZoomOutX() {
+    return -getImageWidth() / 2 + getZoomButtonSize() * 0.75;
+  }
+
+  function getZoomInX() {
+    return getZoomOutX() + getZoomButtonSize() * 1.35;
+  }
+
+  function createZoomButton(label, x, y) {
+    const button = document.createElement("a-circle");
+    button.classList.add("clickable");
+    button.setAttribute("radius", getZoomButtonSize() / 2);
+    button.setAttribute("position", `${x} ${y} 0.28`);
+    button.setAttribute(
+      "material",
+      "color: #101113; opacity: 0.9; transparent: true; shader: flat; depthTest: false"
+    );
+
+    const text = document.createElement("a-text");
+    text.setAttribute("value", label);
+    text.setAttribute("align", "center");
+    text.setAttribute("baseline", "center");
+    text.setAttribute("color", "#f7f4ee");
+    text.setAttribute("width", isDemoMode ? "8" : "12");
+    text.setAttribute("position", "0 0 0.08");
+    text.setAttribute("material", "shader: flat; depthTest: false");
+
+    button.appendChild(text);
+    return button;
   }
 
   function getPointAudio(pointId, source) {
@@ -331,6 +416,20 @@
     }, null);
   }
 
+  function changePointZoom(pointId, direction) {
+    const point = points.find((item) => item.id === pointId);
+    if (!point) return;
+
+    point.zoom = clamp(point.zoom + direction * 0.18, 0.65, 1.75);
+    point.card.setAttribute("scale", `${point.zoom} ${point.zoom} ${point.zoom}`);
+    placeTitle.textContent = point.title;
+    statusLabel.textContent = `Zoom ${Math.round(point.zoom * 100)}%`;
+  }
+
+  function clamp(value, min, max) {
+    return Math.min(Math.max(value, min), max);
+  }
+
   function togglePointAudio(pointId) {
     const point = points.find((item) => item.id === pointId);
     if (!point) return;
@@ -462,6 +561,7 @@
 
       intro.hidden = true;
       hud.hidden = false;
+      syncViewportSize();
       placeTitle.textContent = config.title;
       statusLabel.textContent = options.demo ? "Modo demonstração ativo" : "Aguardando GPS";
       if (!points.length) buildPointEntities();
@@ -479,6 +579,13 @@
 
   startButton.addEventListener("click", () => startExperience());
   demoButton.addEventListener("click", () => startExperience({ demo: true }));
+  scene.addEventListener("loaded", syncViewportSize);
+  window.addEventListener("resize", syncViewportSize);
+  window.addEventListener("orientationchange", () => {
+    window.setTimeout(syncViewportSize, 250);
+  });
+  window.visualViewport?.addEventListener("resize", syncViewportSize);
+  syncViewportSize();
 
   window.addEventListener("arjs-nft-loaded", () => {
     showMessage("AR.js carregado.");
