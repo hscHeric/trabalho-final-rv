@@ -5,6 +5,8 @@ window.AR_POETRY_CONFIG = {
   debugImageWidth: 4,
   debugImageHeight: 4,
   imageAltitude: 3,
+  audioIconOn: "./assets/audio-on.svg",
+  audioIconOff: "./assets/audio-off.svg",
 
   points: [
     {

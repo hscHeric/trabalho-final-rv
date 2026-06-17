@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Áudio ligado">
+  <circle cx="48" cy="48" r="44" fill="#f3b544"/>
+  <path fill="#15120c" d="M20 38h14l18-16v52L34 58H20z"/>
+  <path fill="none" stroke="#15120c" stroke-linecap="round" stroke-width="7" d="M62 38c4 5 4 15 0 20M72 28c10 12 10 28 0 40"/>
+</svg>

@@ -72,37 +72,27 @@
       label.setAttribute("position", `0 ${getLabelY()} 0.05`);
       label.setAttribute("material", "shader: flat");
 
-      const audioButton = document.createElement("a-entity");
-      audioButton.classList.add("clickable");
-      audioButton.setAttribute(
-        "geometry",
-        `primitive: plane; width: ${getAudioButtonWidth()}; height: ${getAudioButtonHeight()}`
-      );
-      audioButton.setAttribute("material", "color: #f3b544; shader: flat");
-      audioButton.setAttribute("position", `0 ${getAudioButtonY()} 0.08`);
-
-      const audioButtonText = document.createElement("a-text");
-      audioButtonText.setAttribute("value", "Tocar áudio");
-      audioButtonText.setAttribute("align", "center");
-      audioButtonText.setAttribute("baseline", "center");
-      audioButtonText.setAttribute("color", "#15120c");
-      audioButtonText.setAttribute("width", "20");
-      audioButtonText.setAttribute("position", "0 0 0.05");
-      audioButtonText.setAttribute("material", "shader: flat");
+      const audioIcon = document.createElement("a-image");
+      audioIcon.classList.add("clickable");
+      audioIcon.setAttribute("src", config.audioIconOff);
+      audioIcon.setAttribute("width", getAudioIconSize());
+      audioIcon.setAttribute("height", getAudioIconSize());
+      audioIcon.setAttribute("position", `0 ${getAudioIconY()} 0.08`);
+      audioIcon.setAttribute("material", "shader: flat; transparent: true");
 
       const audio = getPointAudio(index, point.audio);
       audio.addEventListener("ended", () => {
         if (activePointId !== index) return;
         activePointId = null;
-        statusLabel.textContent = "Toque no botão do áudio";
+        updateAudioIcons();
+        statusLabel.textContent = "Toque no ícone do áudio";
       });
 
-      audioButton.appendChild(audioButtonText);
-      audioButton.addEventListener("click", () => playPointAudio(index));
+      audioIcon.addEventListener("click", () => togglePointAudio(index));
 
       entity.appendChild(image);
       entity.appendChild(label);
-      entity.appendChild(audioButton);
+      entity.appendChild(audioIcon);
       scene.appendChild(entity);
 
       return {
@@ -111,7 +101,7 @@
         audio,
         distance: Number.POSITIVE_INFINITY,
         entity,
-        imageEntity: image,
+        audioIcon,
       };
     });
   }
@@ -133,17 +123,13 @@
     return config.imageAltitude - getImageHeight() / 2 - gap;
   }
 
-  function getAudioButtonY() {
+  function getAudioIconY() {
     const gap = isDebugMode ? 1.3 : 1.9;
     return getLabelY() - gap;
   }
 
-  function getAudioButtonWidth() {
-    return isDebugMode ? 5.4 : 9;
-  }
-
-  function getAudioButtonHeight() {
-    return isDebugMode ? 1.3 : 2.2;
+  function getAudioIconSize() {
+    return isDebugMode ? 1.8 : 3.2;
   }
 
   function getPointAudio(pointId, source) {
@@ -270,7 +256,7 @@
 
     placeTitle.textContent = nearest.title;
     distanceLabel.textContent = `${Math.round(nearest.distance)} m do ponto mais próximo`;
-    if (activePointId === null) statusLabel.textContent = "Toque no botão do áudio";
+    if (activePointId === null) statusLabel.textContent = "Toque no ícone do áudio";
   }
 
   function getNearestPoint() {
@@ -278,6 +264,19 @@
       if (!nearest || point.distance < nearest.distance) return point;
       return nearest;
     }, null);
+  }
+
+  function togglePointAudio(pointId) {
+    const point = points.find((item) => item.id === pointId);
+    if (!point) return;
+
+    if (activePointId === pointId && !point.audio.paused) {
+      stopActiveAudio();
+      statusLabel.textContent = "Áudio desligado";
+      return;
+    }
+
+    playPointAudio(pointId);
   }
 
   function playPointAudio(pointId) {
@@ -293,9 +292,11 @@
     point.audio.currentTime = 0;
     placeTitle.textContent = point.title;
     statusLabel.textContent = "Áudio tocando";
+    updateAudioIcons();
     point.audio.play().catch(() => {
       activePointId = null;
-      showMessage("Toque no botão do áudio novamente para liberar o som neste navegador.");
+      updateAudioIcons();
+      showMessage("Toque no ícone do áudio novamente para liberar o som neste navegador.");
     });
   }
 
@@ -309,6 +310,16 @@
     activePoint.audio.pause();
     activePoint.audio.currentTime = 0;
     activePointId = null;
+    updateAudioIcons();
+  }
+
+  function updateAudioIcons() {
+    points.forEach((point) => {
+      point.audioIcon.setAttribute(
+        "src",
+        activePointId === point.id ? config.audioIconOn : config.audioIconOff
+      );
+    });
   }
 
   function distanceInMeters(latA, lonA, latB, lonB) {
