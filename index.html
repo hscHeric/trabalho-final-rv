@@ -42,10 +42,10 @@
       id="scene"
       vr-mode-ui="enabled: false"
       embedded
-      renderer="antialias: true; alpha: true"
-      arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false"
+      renderer="antialias: false; alpha: true; precision: mediump; powerPreference: low-power"
+      arjs="sourceType: webcam; videoTexture: false; debugUIEnabled: false; maxDetectionRate: 30"
       cursor="rayOrigin: mouse"
-      raycaster="objects: .clickable"
+      raycaster="objects: .clickable; interval: 160"
     >
       <a-assets timeout="10000">
         <img id="image-casa-saberes" src="./assets/img-01.jpg" alt="" />
