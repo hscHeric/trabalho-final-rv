@@ -44,19 +44,13 @@
       entity.setAttribute("gps-new-entity-place", gpsAttribute(point));
       entity.setAttribute("face-camera", "");
 
-      const image = document.createElement("a-image");
-      image.classList.add("clickable");
-      image.setAttribute("src", point.image);
-      image.setAttribute("width", getImageWidth());
-      image.setAttribute("height", getImageHeight());
-      image.setAttribute("position", `0 ${config.imageAltitude} 0`);
-      image.setAttribute("material", "shader: flat; transparent: true");
-      image.setAttribute(
+      const card = document.createElement("a-entity");
+      card.setAttribute(
         "animation__float",
         [
           "property: position",
-          `from: 0 ${config.imageAltitude} 0`,
-          `to: 0 ${config.imageAltitude + 1.2} 0`,
+          "from: 0 0 0",
+          "to: 0 0.7 0",
           "dir: alternate",
           "dur: 1800",
           "easing: easeInOutSine",
@@ -64,20 +58,60 @@
         ].join("; ")
       );
 
+      const shadow = document.createElement("a-plane");
+      shadow.setAttribute("width", getFrameWidth());
+      shadow.setAttribute("height", getFrameHeight());
+      shadow.setAttribute("position", `0 ${config.imageAltitude - 0.16} -0.08`);
+      shadow.setAttribute(
+        "material",
+        "color: #000000; opacity: 0.32; transparent: true; shader: flat"
+      );
+
+      const frame = document.createElement("a-plane");
+      frame.setAttribute("width", getFrameWidth());
+      frame.setAttribute("height", getFrameHeight());
+      frame.setAttribute("position", `0 ${config.imageAltitude} -0.04`);
+      frame.setAttribute("material", "color: #f3b544; opacity: 0.95; shader: flat");
+
+      const image = document.createElement("a-image");
+      image.setAttribute("src", point.image);
+      image.setAttribute("width", getImageWidth());
+      image.setAttribute("height", getImageHeight());
+      image.setAttribute("position", `0 ${config.imageAltitude} 0.01`);
+      image.setAttribute("material", "shader: flat; transparent: true");
+
+      const labelBackground = document.createElement("a-plane");
+      labelBackground.setAttribute("width", getLabelWidth());
+      labelBackground.setAttribute("height", getLabelHeight());
+      labelBackground.setAttribute("position", `0 ${getLabelY()} 0.02`);
+      labelBackground.setAttribute(
+        "material",
+        "color: #101113; opacity: 0.82; transparent: true; shader: flat"
+      );
+
       const label = document.createElement("a-text");
       label.setAttribute("value", point.title);
       label.setAttribute("align", "center");
       label.setAttribute("color", "#f7f4ee");
       label.setAttribute("width", "36");
-      label.setAttribute("position", `0 ${getLabelY()} 0.05`);
+      label.setAttribute("position", `0 ${getLabelY()} 0.06`);
       label.setAttribute("material", "shader: flat");
+
+      const iconHalo = document.createElement("a-ring");
+      iconHalo.setAttribute("radius-inner", getAudioIconSize() * 0.56);
+      iconHalo.setAttribute("radius-outer", getAudioIconSize() * 0.68);
+      iconHalo.setAttribute("position", `${getAudioIconX()} ${getAudioIconY()} 0.07`);
+      iconHalo.setAttribute(
+        "material",
+        "color: #101113; opacity: 0.68; transparent: true; shader: flat"
+      );
 
       const audioIcon = document.createElement("a-image");
       audioIcon.classList.add("clickable");
       audioIcon.setAttribute("src", config.audioIconOff);
       audioIcon.setAttribute("width", getAudioIconSize());
       audioIcon.setAttribute("height", getAudioIconSize());
-      audioIcon.setAttribute("position", `0 ${getAudioIconY()} 0.08`);
+      audioIcon.setAttribute("position", `${getAudioIconX()} ${getAudioIconY()} 0.1`);
       audioIcon.setAttribute("material", "shader: flat; transparent: true");
 
       const audio = getPointAudio(index, point.audio);
@@ -90,9 +124,14 @@
 
       audioIcon.addEventListener("click", () => togglePointAudio(index));
 
-      entity.appendChild(image);
-      entity.appendChild(label);
-      entity.appendChild(audioIcon);
+      card.appendChild(shadow);
+      card.appendChild(frame);
+      card.appendChild(image);
+      card.appendChild(labelBackground);
+      card.appendChild(label);
+      card.appendChild(iconHalo);
+      card.appendChild(audioIcon);
+      entity.appendChild(card);
       scene.appendChild(entity);
 
       return {
@@ -118,14 +157,37 @@
     return isDebugMode ? config.debugImageHeight : config.imageHeight;
   }
 
+  function getFrameWidth() {
+    return getImageWidth() + getFramePadding();
+  }
+
+  function getFrameHeight() {
+    return getImageHeight() + getFramePadding();
+  }
+
+  function getFramePadding() {
+    return isDebugMode ? 0.28 : 0.55;
+  }
+
   function getLabelY() {
     const gap = isDebugMode ? 0.7 : 1.1;
     return config.imageAltitude - getImageHeight() / 2 - gap;
   }
 
+  function getLabelWidth() {
+    return Math.max(getImageWidth() * 0.92, isDebugMode ? 4.8 : 8.5);
+  }
+
+  function getLabelHeight() {
+    return isDebugMode ? 0.85 : 1.2;
+  }
+
+  function getAudioIconX() {
+    return getImageWidth() / 2 - getAudioIconSize() * 0.18;
+  }
+
   function getAudioIconY() {
-    const gap = isDebugMode ? 1.3 : 1.9;
-    return getLabelY() - gap;
+    return config.imageAltitude - getImageHeight() / 2 + getAudioIconSize() * 0.18;
   }
 
   function getAudioIconSize() {
