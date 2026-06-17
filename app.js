@@ -222,7 +222,8 @@
   }
 
   function getAudioIconY() {
-    return config.imageAltitude - getImageHeight() / 2 - getAudioIconBackgroundSize() * 0.15;
+    const gap = isDemoMode ? 0.42 : 0.64;
+    return getLabelY() - gap;
   }
 
   function getAudioIconSize() {
