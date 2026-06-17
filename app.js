@@ -19,13 +19,26 @@
   const audioByPointId = new Map();
 
   AFRAME.registerComponent("face-camera", {
-    tick: function () {
-      const camera = document.querySelector("[camera]");
-      if (!camera) return;
+    init: function () {
+      this.cameraElement = document.getElementById("camera");
+      this.cameraPosition = new THREE.Vector3();
+      this.entityPosition = new THREE.Vector3();
+      this.lastUpdate = 0;
+    },
 
-      const cameraPosition = new THREE.Vector3();
-      camera.object3D.getWorldPosition(cameraPosition);
-      this.el.object3D.lookAt(cameraPosition);
+    tick: function () {
+      if (!this.cameraElement) return;
+
+      const now = performance.now();
+      if (now - this.lastUpdate < 80) return;
+
+      this.cameraElement.object3D.getWorldPosition(this.cameraPosition);
+      this.el.object3D.getWorldPosition(this.entityPosition);
+      this.cameraPosition.y = this.entityPosition.y;
+      this.el.object3D.lookAt(this.cameraPosition);
+      this.el.object3D.rotation.x = 0;
+      this.el.object3D.rotation.z = 0;
+      this.lastUpdate = now;
     },
   });
 
