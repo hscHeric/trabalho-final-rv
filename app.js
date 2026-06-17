@@ -16,6 +16,7 @@
   let activePointId = null;
   let watchId = null;
   let cameraLoopId = null;
+  let isDebugMode = false;
   const audioByPointId = new Map();
 
   AFRAME.registerComponent("face-camera", {
@@ -47,8 +48,8 @@
       const image = document.createElement("a-image");
       image.classList.add("clickable");
       image.setAttribute("src", point.image);
-      image.setAttribute("width", config.imageWidth);
-      image.setAttribute("height", config.imageHeight);
+      image.setAttribute("width", getImageWidth());
+      image.setAttribute("height", getImageHeight());
       image.setAttribute("position", `0 ${config.imageAltitude} 0`);
       image.setAttribute("material", "shader: flat; transparent: true");
       image.setAttribute(
@@ -94,6 +95,14 @@
 
   function gpsAttribute(point) {
     return `latitude: ${point.latitude}; longitude: ${point.longitude}`;
+  }
+
+  function getImageWidth() {
+    return isDebugMode ? config.debugImageWidth : config.imageWidth;
+  }
+
+  function getImageHeight() {
+    return isDebugMode ? config.debugImageHeight : config.imageHeight;
   }
 
   function getPointAudio(pointId, source) {
@@ -385,6 +394,7 @@
 
   async function startExperience(options = {}) {
     try {
+      isDebugMode = Boolean(options.debug);
       primeConfiguredAudio();
       await requestMotionPermission();
       if (options.debug) {

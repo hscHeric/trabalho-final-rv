@@ -2,6 +2,8 @@ window.AR_POETRY_CONFIG = {
   title: "Roteiro AR Quixada",
   imageWidth: 12,
   imageHeight: 12,
+  debugImageWidth: 4,
+  debugImageHeight: 4,
   imageAltitude: 3,
 
   points: [
