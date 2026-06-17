@@ -74,32 +74,32 @@
       const shadow = document.createElement("a-plane");
       shadow.setAttribute("width", getFrameWidth());
       shadow.setAttribute("height", getFrameHeight());
-      shadow.setAttribute("position", `0 ${config.imageAltitude - 0.16} -0.08`);
+      shadow.setAttribute("position", `0 ${config.imageAltitude - 0.16} -0.28`);
       shadow.setAttribute(
         "material",
-        "color: #000000; opacity: 0.32; transparent: true; shader: flat"
+        "color: #000000; opacity: 0.32; transparent: true; shader: flat; depthTest: false"
       );
 
       const frame = document.createElement("a-plane");
       frame.setAttribute("width", getFrameWidth());
       frame.setAttribute("height", getFrameHeight());
-      frame.setAttribute("position", `0 ${config.imageAltitude} -0.04`);
-      frame.setAttribute("material", "color: #f3b544; opacity: 0.95; shader: flat");
+      frame.setAttribute("position", `0 ${config.imageAltitude} -0.16`);
+      frame.setAttribute("material", "color: #f3b544; shader: flat; depthTest: false");
 
       const image = document.createElement("a-image");
       image.setAttribute("src", point.image);
       image.setAttribute("width", getImageWidth());
       image.setAttribute("height", getImageHeight());
-      image.setAttribute("position", `0 ${config.imageAltitude} 0.01`);
-      image.setAttribute("material", "shader: flat; transparent: true");
+      image.setAttribute("position", `0 ${config.imageAltitude} 0`);
+      image.setAttribute("material", "shader: flat; depthTest: false");
 
       const labelBackground = document.createElement("a-plane");
       labelBackground.setAttribute("width", getLabelWidth());
       labelBackground.setAttribute("height", getLabelHeight());
-      labelBackground.setAttribute("position", `0 ${getLabelY()} 0.02`);
+      labelBackground.setAttribute("position", `0 ${getLabelY()} 0.12`);
       labelBackground.setAttribute(
         "material",
-        "color: #101113; opacity: 0.82; transparent: true; shader: flat"
+        "color: #101113; opacity: 0.82; transparent: true; shader: flat; depthTest: false"
       );
 
       const label = document.createElement("a-text");
@@ -107,25 +107,16 @@
       label.setAttribute("align", "center");
       label.setAttribute("color", "#f7f4ee");
       label.setAttribute("width", "36");
-      label.setAttribute("position", `0 ${getLabelY()} 0.06`);
-      label.setAttribute("material", "shader: flat");
-
-      const iconHalo = document.createElement("a-ring");
-      iconHalo.setAttribute("radius-inner", getAudioIconSize() * 0.56);
-      iconHalo.setAttribute("radius-outer", getAudioIconSize() * 0.68);
-      iconHalo.setAttribute("position", `${getAudioIconX()} ${getAudioIconY()} 0.07`);
-      iconHalo.setAttribute(
-        "material",
-        "color: #101113; opacity: 0.68; transparent: true; shader: flat"
-      );
+      label.setAttribute("position", `0 ${getLabelY()} 0.2`);
+      label.setAttribute("material", "shader: flat; depthTest: false");
 
       const audioIcon = document.createElement("a-image");
       audioIcon.classList.add("clickable");
       audioIcon.setAttribute("src", config.audioIconOff);
       audioIcon.setAttribute("width", getAudioIconSize());
       audioIcon.setAttribute("height", getAudioIconSize());
-      audioIcon.setAttribute("position", `${getAudioIconX()} ${getAudioIconY()} 0.1`);
-      audioIcon.setAttribute("material", "shader: flat; transparent: true");
+      audioIcon.setAttribute("position", `${getAudioIconX()} ${getAudioIconY()} 0.28`);
+      audioIcon.setAttribute("material", "shader: flat; transparent: true; depthTest: false");
 
       const audio = getPointAudio(index, point.audio);
       audio.addEventListener("ended", () => {
@@ -142,7 +133,6 @@
       card.appendChild(image);
       card.appendChild(labelBackground);
       card.appendChild(label);
-      card.appendChild(iconHalo);
       card.appendChild(audioIcon);
       entity.appendChild(card);
       scene.appendChild(entity);
@@ -204,7 +194,7 @@
   }
 
   function getAudioIconSize() {
-    return isDemoMode ? 1.8 : 3.2;
+    return isDemoMode ? 1.35 : 2.45;
   }
 
   function getPointAudio(pointId, source) {
