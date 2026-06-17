@@ -16,8 +16,6 @@
   let activePointId = null;
   let watchId = null;
   let isDemoMode = false;
-  let selectedPointId = null;
-  let pinchState = null;
   const audioByPointId = new Map();
 
   AFRAME.registerComponent("face-camera", {
@@ -143,11 +141,19 @@
 
       const label = document.createElement("a-text");
       label.setAttribute("value", point.title);
-      label.setAttribute("align", "center");
+      label.setAttribute("align", "left");
       label.setAttribute("color", "#f7f4ee");
-      label.setAttribute("width", "36");
-      label.setAttribute("position", `0 ${getLabelY()} 0.2`);
+      label.setAttribute("width", getLabelTextWidth());
+      label.setAttribute("position", `${getLabelTextX()} ${getLabelY()} 0.2`);
       label.setAttribute("material", "shader: flat; depthTest: false");
+
+      const audioIconBackground = document.createElement("a-circle");
+      audioIconBackground.setAttribute("radius", getAudioIconBackgroundSize() / 2);
+      audioIconBackground.setAttribute("position", `${getAudioIconX()} ${getAudioIconY()} 0.24`);
+      audioIconBackground.setAttribute(
+        "material",
+        "color: #f3b544; opacity: 0.96; transparent: true; shader: flat; depthTest: false"
+      );
 
       const audioIcon = document.createElement("a-image");
       audioIcon.classList.add("clickable");
@@ -165,8 +171,6 @@
         statusLabel.textContent = "Toque no ícone do áudio";
       });
 
-      image.addEventListener("click", () => selectPoint(index));
-      label.addEventListener("click", () => selectPoint(index));
       audioIcon.addEventListener("click", () => togglePointAudio(index));
 
       card.appendChild(shadow);
@@ -174,6 +178,7 @@
       card.appendChild(image);
       card.appendChild(labelBackground);
       card.appendChild(label);
+      card.appendChild(audioIconBackground);
       card.appendChild(audioIcon);
       entity.appendChild(card);
       scene.appendChild(entity);
@@ -182,9 +187,7 @@
         ...point,
         id: index,
         audio,
-        card,
         distance: Number.POSITIVE_INFINITY,
-        zoom: 1,
         entity,
         audioIcon,
       };
@@ -221,23 +224,35 @@
   }
 
   function getLabelWidth() {
-    return Math.max(getImageWidth() * 0.92, isDemoMode ? 4.8 : 8.5);
+    return Math.max(getImageWidth() * 0.96, isDemoMode ? 4.8 : 8.8);
   }
 
   function getLabelHeight() {
-    return isDemoMode ? 0.85 : 1.2;
+    return isDemoMode ? 0.95 : 1.35;
+  }
+
+  function getLabelTextX() {
+    return -getLabelWidth() / 2 + getLabelHeight() * 0.42;
+  }
+
+  function getLabelTextWidth() {
+    return isDemoMode ? "13" : "29";
   }
 
   function getAudioIconX() {
-    return getImageWidth() / 2 - getAudioIconSize() * 0.18;
+    return getLabelWidth() / 2 - getAudioIconSize() * 0.62;
   }
 
   function getAudioIconY() {
-    return config.imageAltitude - getImageHeight() / 2 + getAudioIconSize() * 0.18;
+    return getLabelY();
   }
 
   function getAudioIconSize() {
-    return isDemoMode ? 1.35 : 2.45;
+    return isDemoMode ? 0.7 : 0.98;
+  }
+
+  function getAudioIconBackgroundSize() {
+    return isDemoMode ? 1.05 : 1.45;
   }
 
   function getPointAudio(pointId, source) {
@@ -374,79 +389,9 @@
     }, null);
   }
 
-  function selectPoint(pointId) {
-    const point = points.find((item) => item.id === pointId);
-    if (!point) return;
-
-    selectedPointId = pointId;
-    placeTitle.textContent = point.title;
-    statusLabel.textContent = "Use pinça para ajustar o zoom";
-  }
-
-  function setPointZoom(pointId, zoom) {
-    const point = points.find((item) => item.id === pointId);
-    if (!point) return;
-
-    point.zoom = clamp(zoom, 0.65, 1.75);
-    point.card.setAttribute("scale", `${point.zoom} ${point.zoom} ${point.zoom}`);
-    placeTitle.textContent = point.title;
-    statusLabel.textContent = `Zoom ${Math.round(point.zoom * 100)}%`;
-  }
-
-  function getPinchTargetPoint() {
-    if (selectedPointId !== null) {
-      const selectedPoint = points.find((point) => point.id === selectedPointId);
-      if (selectedPoint) return selectedPoint;
-    }
-
-    return getNearestPoint();
-  }
-
-  function getTouchDistance(touches) {
-    const deltaX = touches[0].clientX - touches[1].clientX;
-    const deltaY = touches[0].clientY - touches[1].clientY;
-    return Math.hypot(deltaX, deltaY);
-  }
-
-  function handleTouchStart(event) {
-    if (event.touches.length !== 2) return;
-
-    const point = getPinchTargetPoint();
-    if (!point) return;
-
-    event.preventDefault();
-    selectedPointId = point.id;
-    pinchState = {
-      pointId: point.id,
-      startDistance: getTouchDistance(event.touches),
-      startZoom: point.zoom,
-    };
-  }
-
-  function handleTouchMove(event) {
-    if (!pinchState || event.touches.length !== 2) return;
-
-    event.preventDefault();
-    const currentDistance = getTouchDistance(event.touches);
-    if (pinchState.startDistance <= 0) return;
-
-    const zoom = pinchState.startZoom * (currentDistance / pinchState.startDistance);
-    setPointZoom(pinchState.pointId, zoom);
-  }
-
-  function handleTouchEnd(event) {
-    if (event.touches.length < 2) pinchState = null;
-  }
-
-  function clamp(value, min, max) {
-    return Math.min(Math.max(value, min), max);
-  }
-
   function togglePointAudio(pointId) {
     const point = points.find((item) => item.id === pointId);
     if (!point) return;
-
-    selectedPointId = pointId;
 
     if (activePointId === pointId && !point.audio.paused) {
       stopActiveAudio();
@@ -598,10 +543,6 @@
   window.addEventListener("orientationchange", () => {
     window.setTimeout(syncViewportSize, 250);
   });
-  window.addEventListener("touchstart", handleTouchStart, { passive: false });
-  window.addEventListener("touchmove", handleTouchMove, { passive: false });
-  window.addEventListener("touchend", handleTouchEnd);
-  window.addEventListener("touchcancel", handleTouchEnd);
   window.visualViewport?.addEventListener("resize", syncViewportSize);
   syncViewportSize();
 
