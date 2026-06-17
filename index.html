@@ -14,14 +14,15 @@
     <main id="intro" class="intro">
       <section class="intro__panel">
         <p class="kicker">AR.js + GPS</p>
-        <h1>Poesia quixadaense em realidade aumentada</h1>
+        <h1>Roteiro AR de Quixada</h1>
         <p>
-          Aponte a camera para a coordenada da estatua. Um cubo vermelho aparece
-          preso ao lugar no espaco.
+          Caminhe pelos pontos marcados. Uma imagem vai flutuar nas coordenadas
+          de cada lugar, e o audio toca quando ela aparecer na camera.
         </p>
         <button id="start-button" type="button">Iniciar experiencia</button>
+        <button id="debug-button" class="debug-button" type="button">Debug perto de mim</button>
         <p class="hint">
-          Use no celular, em HTTPS ou localhost, com permissao de camera,
+          No GitHub Pages, abra pelo celular em HTTPS e permita camera,
           localizacao e sensores.
         </p>
       </section>
@@ -37,21 +38,6 @@
 
     <div id="message" class="message" hidden></div>
 
-    <dialog id="poem-modal" class="poem-modal">
-      <article class="parchment">
-        <button id="close-modal" class="modal-close" type="button" aria-label="Fechar">
-          x
-        </button>
-        <p class="kicker">Poesia</p>
-        <h2>Personagem de Quixada</h2>
-        <p>
-          No caminho de pedra e sol, uma voz antiga atravessa a rua. Entre o
-          vento dos monolitos e o passo ligeiro do povo, a cidade guarda sua
-          memoria em silencio, esperando que alguem aponte a camera e escute.
-        </p>
-      </article>
-    </dialog>
-
     <a-scene
       id="scene"
       vr-mode-ui="enabled: false"
@@ -61,6 +47,12 @@
       cursor="rayOrigin: mouse"
       raycaster="objects: .clickable"
     >
+      <a-assets timeout="10000">
+        <img id="image-casa-saberes" src="./assets/img-01.jpg" alt="" />
+        <img id="image-museu-jacinto" src="./assets/img-02.jpg" alt="" />
+        <img id="image-cego-aderaldo" src="./assets/img-03.jpg" alt="" />
+      </a-assets>
+
       <a-camera
         id="camera"
         look-controls-enabled="false"

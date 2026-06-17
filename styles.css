@@ -38,6 +38,17 @@ button:active {
   transform: translateY(1px);
 }
 
+.debug-button {
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #f7f4ee;
+  display: block;
+  font-size: 0.78rem;
+  margin-top: 10px;
+  min-height: 32px;
+  padding: 0 10px;
+}
+
 .intro {
   align-items: center;
   background:
@@ -141,80 +152,6 @@ h1 {
   position: fixed;
   transform: translateX(-50%);
   z-index: 20;
-}
-
-.poem-modal {
-  background: transparent;
-  border: 0;
-  color: #2f2113;
-  max-width: min(92vw, 560px);
-  padding: 0;
-}
-
-.poem-modal::backdrop {
-  background: rgba(11, 10, 9, 0.56);
-}
-
-.parchment {
-  background:
-    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.34), transparent 24%),
-    radial-gradient(circle at 80% 76%, rgba(91, 51, 24, 0.2), transparent 28%),
-    linear-gradient(135deg, #f4dfac, #d6a85f 48%, #f0d59a);
-  border: 2px solid #7c5429;
-  border-radius: 6px;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
-  line-height: 1.62;
-  padding: 30px 28px 28px;
-  position: relative;
-}
-
-.parchment::before,
-.parchment::after {
-  background: rgba(92, 56, 23, 0.14);
-  content: "";
-  height: 10px;
-  left: 18px;
-  position: absolute;
-  right: 18px;
-}
-
-.parchment::before {
-  top: 10px;
-}
-
-.parchment::after {
-  bottom: 10px;
-}
-
-.parchment h2 {
-  font-size: 1.55rem;
-  line-height: 1.15;
-  margin: 0 34px 14px 0;
-}
-
-.parchment p {
-  margin: 0;
-}
-
-.parchment .kicker {
-  color: #7c3f1b;
-  margin-bottom: 8px;
-}
-
-.modal-close {
-  align-items: center;
-  background: #7c3f1b;
-  color: #fff8e8;
-  display: flex;
-  font-size: 1.1rem;
-  height: 34px;
-  justify-content: center;
-  min-height: 34px;
-  padding: 0;
-  position: absolute;
-  right: 14px;
-  top: 14px;
-  width: 34px;
 }
 
 a-scene,
