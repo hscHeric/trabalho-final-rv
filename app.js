@@ -130,21 +130,12 @@
       image.setAttribute("position", `0 ${config.imageAltitude} 0`);
       image.setAttribute("material", "shader: flat; depthTest: false");
 
-      const labelBackground = document.createElement("a-plane");
-      labelBackground.setAttribute("width", getLabelWidth());
-      labelBackground.setAttribute("height", getLabelHeight());
-      labelBackground.setAttribute("position", `0 ${getLabelY()} 0.12`);
-      labelBackground.setAttribute(
-        "material",
-        "color: #101113; opacity: 0.82; transparent: true; shader: flat; depthTest: false"
-      );
-
       const label = document.createElement("a-text");
       label.setAttribute("value", point.title);
-      label.setAttribute("align", "left");
-      label.setAttribute("color", "#f7f4ee");
+      label.setAttribute("align", "center");
+      label.setAttribute("color", "#f3b544");
       label.setAttribute("width", getLabelTextWidth());
-      label.setAttribute("position", `${getLabelTextX()} ${getLabelY()} 0.2`);
+      label.setAttribute("position", `0 ${getLabelY()} 0.2`);
       label.setAttribute("material", "shader: flat; depthTest: false");
 
       const audioIconBackground = document.createElement("a-circle");
@@ -176,7 +167,6 @@
       card.appendChild(shadow);
       card.appendChild(frame);
       card.appendChild(image);
-      card.appendChild(labelBackground);
       card.appendChild(label);
       card.appendChild(audioIconBackground);
       card.appendChild(audioIcon);
@@ -223,28 +213,16 @@
     return config.imageAltitude - getImageHeight() / 2 - gap;
   }
 
-  function getLabelWidth() {
-    return Math.max(getImageWidth() * 0.96, isDemoMode ? 4.8 : 8.8);
-  }
-
-  function getLabelHeight() {
-    return isDemoMode ? 0.95 : 1.35;
-  }
-
-  function getLabelTextX() {
-    return -getLabelWidth() / 2 + getLabelHeight() * 0.42;
-  }
-
   function getLabelTextWidth() {
-    return isDemoMode ? "13" : "29";
+    return isDemoMode ? "16" : "34";
   }
 
   function getAudioIconX() {
-    return getLabelWidth() / 2 - getAudioIconSize() * 0.62;
+    return getImageWidth() / 2 - getAudioIconBackgroundSize() * 0.28;
   }
 
   function getAudioIconY() {
-    return getLabelY();
+    return config.imageAltitude - getImageHeight() / 2 - getAudioIconBackgroundSize() * 0.15;
   }
 
   function getAudioIconSize() {
