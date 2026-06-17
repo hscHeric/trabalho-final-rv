@@ -1,9 +1,9 @@
 window.AR_POETRY_CONFIG = {
   title: "Roteiro AR Quixadá",
-  imageWidth: 12,
-  imageHeight: 12,
-  demoImageWidth: 4,
-  demoImageHeight: 4,
+  imageWidth: 13.5,
+  imageHeight: 13.5,
+  demoImageWidth: 4.4,
+  demoImageHeight: 4.4,
   imageAltitude: 3,
   audioIconOn: "./assets/audio-on.svg",
   audioIconOff: "./assets/audio-off.svg",
