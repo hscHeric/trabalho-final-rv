@@ -15,7 +15,6 @@
   let pointConfigs = config.points.map((point) => ({ ...point }));
   let activePointId = null;
   let watchId = null;
-  let cameraLoopId = null;
   let isDebugMode = false;
   const audioByPointId = new Map();
 
@@ -70,15 +69,40 @@
       label.setAttribute("align", "center");
       label.setAttribute("color", "#f7f4ee");
       label.setAttribute("width", "36");
-      label.setAttribute("position", `0 ${config.imageAltitude - 7.3} 0.05`);
+      label.setAttribute("position", `0 ${getLabelY()} 0.05`);
       label.setAttribute("material", "shader: flat");
 
-      const audio = getPointAudio(index, point.audio);
+      const audioButton = document.createElement("a-entity");
+      audioButton.classList.add("clickable");
+      audioButton.setAttribute(
+        "geometry",
+        `primitive: plane; width: ${getAudioButtonWidth()}; height: ${getAudioButtonHeight()}`
+      );
+      audioButton.setAttribute("material", "color: #f3b544; shader: flat");
+      audioButton.setAttribute("position", `0 ${getAudioButtonY()} 0.08`);
 
-      image.addEventListener("click", () => playPointAudio(index));
+      const audioButtonText = document.createElement("a-text");
+      audioButtonText.setAttribute("value", "Tocar áudio");
+      audioButtonText.setAttribute("align", "center");
+      audioButtonText.setAttribute("baseline", "center");
+      audioButtonText.setAttribute("color", "#15120c");
+      audioButtonText.setAttribute("width", "20");
+      audioButtonText.setAttribute("position", "0 0 0.05");
+      audioButtonText.setAttribute("material", "shader: flat");
+
+      const audio = getPointAudio(index, point.audio);
+      audio.addEventListener("ended", () => {
+        if (activePointId !== index) return;
+        activePointId = null;
+        statusLabel.textContent = "Toque no botão do áudio";
+      });
+
+      audioButton.appendChild(audioButtonText);
+      audioButton.addEventListener("click", () => playPointAudio(index));
 
       entity.appendChild(image);
       entity.appendChild(label);
+      entity.appendChild(audioButton);
       scene.appendChild(entity);
 
       return {
@@ -88,7 +112,6 @@
         distance: Number.POSITIVE_INFINITY,
         entity,
         imageEntity: image,
-        hasPlayedInView: false,
       };
     });
   }
@@ -103,6 +126,24 @@
 
   function getImageHeight() {
     return isDebugMode ? config.debugImageHeight : config.imageHeight;
+  }
+
+  function getLabelY() {
+    const gap = isDebugMode ? 0.7 : 1.1;
+    return config.imageAltitude - getImageHeight() / 2 - gap;
+  }
+
+  function getAudioButtonY() {
+    const gap = isDebugMode ? 1.3 : 1.9;
+    return getLabelY() - gap;
+  }
+
+  function getAudioButtonWidth() {
+    return isDebugMode ? 5.4 : 9;
+  }
+
+  function getAudioButtonHeight() {
+    return isDebugMode ? 1.3 : 2.2;
   }
 
   function getPointAudio(pointId, source) {
@@ -148,7 +189,7 @@
 
   function startGpsWatch() {
     if (!navigator.geolocation) {
-      showMessage("Este navegador nao tem suporte a GPS.");
+      showMessage("Este navegador não tem suporte a GPS.");
       return;
     }
 
@@ -157,8 +198,8 @@
     watchId = navigator.geolocation.watchPosition(
       handlePosition,
       () => {
-        distanceLabel.textContent = "Nao foi possivel ler o GPS";
-        statusLabel.textContent = "Verifique a localizacao";
+        distanceLabel.textContent = "Não foi possível ler o GPS";
+        statusLabel.textContent = "Verifique a localização";
       },
       {
         enableHighAccuracy: true,
@@ -171,7 +212,7 @@
   function getCurrentPosition() {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
-        reject(new Error("GPS indisponivel."));
+        reject(new Error("GPS indisponível."));
         return;
       }
 
@@ -228,69 +269,8 @@
     if (!nearest || !Number.isFinite(nearest.distance)) return;
 
     placeTitle.textContent = nearest.title;
-    distanceLabel.textContent = `${Math.round(nearest.distance)} m do ponto mais proximo`;
-    if (activePointId === null) statusLabel.textContent = "Aponte para a imagem";
-  }
-
-  function startCameraViewLoop() {
-    if (cameraLoopId !== null) return;
-
-    const tick = () => {
-      updateAudioByCameraView();
-      cameraLoopId = window.requestAnimationFrame(tick);
-    };
-
-    cameraLoopId = window.requestAnimationFrame(tick);
-  }
-
-  function updateAudioByCameraView() {
-    const visiblePoint = getVisiblePoint();
-    if (!visiblePoint) {
-      stopActiveAudio();
-      points.forEach((point) => {
-        point.hasPlayedInView = false;
-      });
-      return;
-    }
-
-    placeTitle.textContent = visiblePoint.title;
-    statusLabel.textContent = "Imagem na camera";
-
-    if (visiblePoint.hasPlayedInView && visiblePoint.audio.paused) return;
-
-    playPointAudio(visiblePoint.id);
-  }
-
-  function getVisiblePoint() {
-    const visiblePoints = points.filter(isPointInCameraView);
-    if (!visiblePoints.length) return null;
-
-    return visiblePoints.reduce((nearest, point) => {
-      if (point.distance < nearest.distance) return point;
-      return nearest;
-    });
-  }
-
-  function isPointInCameraView(point) {
-    const cameraElement = document.getElementById("camera");
-    const camera = cameraElement?.components?.camera?.camera;
-    if (!camera || !point.imageEntity.object3D.visible) return false;
-
-    const position = new THREE.Vector3();
-    point.imageEntity.object3D.getWorldPosition(position);
-
-    if (position.lengthSq() === 0) return false;
-
-    position.project(camera);
-
-    return (
-      position.z >= -1 &&
-      position.z <= 1 &&
-      position.x >= -0.85 &&
-      position.x <= 0.85 &&
-      position.y >= -0.85 &&
-      position.y <= 0.85
-    );
+    distanceLabel.textContent = `${Math.round(nearest.distance)} m do ponto mais próximo`;
+    if (activePointId === null) statusLabel.textContent = "Toque no botão do áudio";
   }
 
   function getNearestPoint() {
@@ -311,10 +291,11 @@
     if (!point.audio.paused) return;
 
     point.audio.currentTime = 0;
-    point.hasPlayedInView = true;
+    placeTitle.textContent = point.title;
+    statusLabel.textContent = "Áudio tocando";
     point.audio.play().catch(() => {
-      point.hasPlayedInView = false;
-      showMessage("Toque na imagem para liberar o audio neste navegador.");
+      activePointId = null;
+      showMessage("Toque no botão do áudio novamente para liberar o som neste navegador.");
     });
   }
 
@@ -388,7 +369,7 @@
 
     const permission = await orientation.requestPermission();
     if (permission !== "granted") {
-      throw new Error("Permissao dos sensores negada.");
+      throw new Error("Permissão dos sensores negada.");
     }
   }
 
@@ -410,13 +391,12 @@
       if (!points.length) buildPointEntities();
       primeAudio();
       startGpsWatch();
-      startCameraViewLoop();
       if (options.debug) {
-        showMessage("Debug ativo: pontos criados a poucos metros de voce.");
+        showMessage("Debug ativo: pontos criados a poucos metros de você.");
       }
     } catch (error) {
       showMessage(
-        "Nao foi possivel iniciar. Verifique as permissoes de camera, GPS e sensores."
+        "Não foi possível iniciar. Verifique as permissões de câmera, GPS e sensores."
       );
     }
   }

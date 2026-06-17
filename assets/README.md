@@ -1,3 +1,3 @@
 # Assets
 
-Pasta reservada para arquivos visuais ou de audio do projeto.
+Pasta reservada para arquivos visuais ou de áudio do projeto.

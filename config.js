@@ -1,5 +1,5 @@
 window.AR_POETRY_CONFIG = {
-  title: "Roteiro AR Quixada",
+  title: "Roteiro AR Quixadá",
   imageWidth: 12,
   imageHeight: 12,
   debugImageWidth: 4,
@@ -22,7 +22,7 @@ window.AR_POETRY_CONFIG = {
       audio: "./assets/audio-02.mp3",
     },
     {
-      title: "Estatua de Cego Aderaldo",
+      title: "Estátua de Cego Aderaldo",
       latitude: -4.973217835039474,
       longitude: -39.01623017856591,
       image: "./assets/img-03.jpg",
