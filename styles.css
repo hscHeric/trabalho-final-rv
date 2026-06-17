@@ -198,6 +198,16 @@ body > video {
   z-index: -2 !important;
 }
 
+.a-enter-vr,
+.a-enter-ar,
+.a-enter-vr-button,
+.a-enter-ar-button {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+
 @media (max-width: 520px) {
   .hud {
     align-items: stretch;
