@@ -10,14 +10,14 @@ window.AR_POETRY_CONFIG = {
 
   points: [
     {
-      title: "Casa dos Saberes",
+      title: "Casa de Saberes Cego Aderaldo",
       latitude: -4.9702131,
       longitude: -39.0155414,
       image: "./assets/img-01-ar.jpg",
       audio: "./assets/audio-01.mp3",
     },
     {
-      title: "Museu Jacinto de Sousa",
+      title: "Museu Histórico Jacinto de Sousa",
       latitude: -4.9694135,
       longitude: -39.0123120,
       image: "./assets/img-02-ar.jpg",
